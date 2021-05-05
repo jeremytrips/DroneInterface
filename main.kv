@@ -1,0 +1,107 @@
+#:import Window kivy.core.window.Window
+
+
+<SerialLayout@BoxLayout>:
+    orientation: "vertical"
+    padding: 25
+    size_hint_x: None
+    width: 200
+    Spinner:
+        id: com_spinner
+        text: "Choose a com"
+        values: root.com_available
+        size_hint_y: None
+        height: 30
+        on_text: 
+            root.set_com_selected(self.text)
+            app.set_com_selected(self.text)
+    Label:
+        size_hint_y: None
+        height: 20
+        text: "Select a baud rate"
+    Spinner:
+        id: baud_rate_spinner
+        text: "9600"
+        values: root.baud_rate_available
+        size_hint_y: None
+        height: 30
+        on_text: 
+            app.set_baud_rate(int(self.text))
+    Widget:
+        size_hint_y: None
+        height: 25
+    Label:
+        size_hint_y: None
+        height: 20
+        text: "Selected com port:"
+    Label:
+        id: com_port
+        size_hint_y: None
+        height: 20
+        text: root.com_selected
+
+    Widget:
+        size_hint_y: None
+        height: 50
+    Label:
+        text: root.com_state
+        size_hint_y: None
+        height: 25
+    Button:
+        text: root.button_text
+        on_press: app.disconnect_com_port() if app.connected else app.connect_com_port()
+        size_hint_y: None
+        height: 25
+    Widget:
+
+<Pixel>:
+    canvas:
+        Color:
+            rgba: self.color
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<CameraRenderingLayout>:
+    cols: 8
+    rows: 8
+    padding: 150
+
+
+FloatLayout:
+    orientation: "horizontal"
+    SerialLayout:
+        id: serial_layout
+        pos_hint: {'x': 0, 'y': 0}
+    
+    CameraRenderingLayout:
+        id: pixels_layout
+        width: Window.width-200
+        size_hint_x: None
+        pos: (200, 0)
+    Label:
+        id: average_label
+        text: "Average temp: {}".format(app.average_temp)
+        size_hint: (0.1, 0.08)
+        pos: (250, Window.height-50)
+    Label:
+        id: frame_drop_label
+        text: "frame drop: {}".format(app.frame_drop)
+        size_hint: (0.1, 0.08)
+        pos: (250, Window.height-75)
+    Label:
+        id: frame_drop_label
+        text: "Temperature alert {}".format(alert_temp.value)
+        size_hint: (0.1, 0.08)
+        pos: (250, Window.height-125)
+    Slider:
+        id: alert_temp
+        min: 25
+        max: 50
+        value: app.alert_temp
+        step: 1
+        orientation: 'horizontal'
+        size_hint: (0.2, 0.08)
+        pos: (250, Window.height-150)
+        
+        
