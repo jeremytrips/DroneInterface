@@ -7,15 +7,34 @@ import numpy as np
 import threading
 import time
 
+# List the possible baud rate.
 baud_rate_list = [
     "75", "110", "300", "1200", "2400", "4800", "9600", "19200", "38400", "57600", "115200"
 ]
 
-OPEN_COM_CHAR = 0x01010101
-END_TRAN_CHAR = '%'
-END_COM_CHAR = 0x11111110
-
 class SerialPipe:
+    """
+    SerialPipe
+    ==========
+    Class that is used to interface the usb port.
+    The call of the open function create a new thread that will read the 256 data frame formated as follow:
+       (xxx,)*64
+    The string is then converted into a numpy array and if it's 64 elements long the created array will be send to the callback
+    If the array is not 64 element long the callback will be called with a False as argument. Letting user know that a frame has been droped.
+    
+    exemple
+    -------
+
+    def cb(data):
+        print(data)
+
+    ser = SerialPiep(cb)
+    ser.port = "COMn"
+    ser.open()
+    ...
+    ser.close()
+
+    """
 
     def __init__(self, callback, debug=False):
         if debug:
@@ -24,12 +43,15 @@ class SerialPipe:
         self._serial.timeout = 500
         self._port = ""
         self._baud_rate = 9600
-        self.run = True
+        self.run = False
         self.callback = callback
         self.debug = debug
 
     def open(self):
-        print("opening")
+        """
+        Set the run flag to True has it is the one that handle while loop in the thread,
+        open _serial and start the thread.
+        """
         self.run = True
         t = threading.Thread(target=self.read_data)
         t.daemon = True
@@ -38,29 +60,35 @@ class SerialPipe:
             self._serial.open()
 
     def read_data(self):
+        """
+        If in debug mode update the emulator and pass his data to the callback function.
+        If it is not in debug mode, 
+        read the 256 long data frame to send it to the callback or send False in the callback 
+        depending if data have been corrupted.
+        """
         while self.run:
             if self.debug:
                 data = self.em.update()
-                self.callback(self.em.data, self.em.hot_point_coordinate)
+                self.callback(self.em.data)
 
                 time.sleep(0.4)
             else:
                 if self._serial.in_waiting >= 256:
                     data = self._serial.read_until()
                     data_array = np.fromstring(data, sep=',', dtype=int)
-                    print(data)
                     if len(data_array) == 64:
                         self.callback(data_array)
-                else:
-                    self.callback(False)
+                    else:
+                        self.callback(False)
                 time.sleep(0.01)
 
     def close(self):
-        print("closing")
+        """
+        Reset the run flag to close the read_data thread and close the USB port.
+        """
         self.run = False
         if not self.debug:
             self._serial.close()
-            self._serial.write
 
     @property
     def is_open(self):

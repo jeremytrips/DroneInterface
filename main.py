@@ -48,7 +48,6 @@ class Pixel(Widget):
 
 
 class CameraRenderingLayout(GridLayout, Widget):
-    hot_point = ListProperty([0,0])
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -75,7 +74,7 @@ class MainApp(App):
         super().__init__(*args, **kwargs)
         self.connected = False
         self.pixels = []
-        self.pipe = SerialPipe(self.update, False)
+        self.pipe = SerialPipe(self.update, True)
         self.alert_sound = SoundLoader.load("alert.wav")
         self.alert_mode = False
 
@@ -90,12 +89,11 @@ class MainApp(App):
     def on_stop(self):
         self.pipe.run = False
 
-    def update(self, data, hp=None):
+    def update(self, data):
         if data is False:
             self.frame_drop += 1
             return 
         data = data/255
-        self.pixels_layout.hot_point = hp
         tmp = round(np.average(data), 2)
         self.average_temp = str(tmp)
         if tmp >= self.alert_temp:
