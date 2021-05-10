@@ -53,11 +53,11 @@ class SerialPipe:
         open _serial and start the thread.
         """
         self.run = True
+        if not self.debug:
+            self._serial.open()
         t = threading.Thread(target=self.read_data)
         t.daemon = True
         t.start()
-        if not self.debug:
-            self._serial.open()
 
     def read_data(self):
         """

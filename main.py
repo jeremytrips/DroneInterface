@@ -74,7 +74,7 @@ class MainApp(App):
         super().__init__(*args, **kwargs)
         self.connected = False
         self.pixels = []
-        self.pipe = SerialPipe(self.update, True)
+        self.pipe = SerialPipe(self.update, False)
         self.alert_sound = SoundLoader.load("alert.wav")
         self.alert_mode = False
 
