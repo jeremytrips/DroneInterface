@@ -70,7 +70,6 @@ class SerialPipe:
             if self.debug:
                 data = self.em.update()
                 self.callback(self.em.data)
-
                 time.sleep(0.4)
             else:
                 if self._serial.in_waiting >= 256:
