@@ -90,7 +90,7 @@ class MainApp(App):
         """
         self.serial_layout = self.root.ids["serial_layout"]
         self.pixels_layout = self.root.ids["pixels_layout"]
-        for i in range(64):
+        for _ in range(64):
             tmp = Pixel()
             self.pixels.append(tmp)
             self.pixels_layout.add_widget(tmp)
